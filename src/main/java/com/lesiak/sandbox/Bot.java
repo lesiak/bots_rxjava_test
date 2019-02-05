@@ -7,6 +7,7 @@ import io.reactivex.subjects.Subject;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class Bot {
 
@@ -19,6 +20,7 @@ public class Bot {
     private int x, y;
 
     private Subject<String> positions = PublishSubject.create();
+    private Observable<String> positionsFiltered = positions.throttleLatest(1, TimeUnit.SECONDS);
 
     public Bot(Double frq) {
         if (frq != null) { // convert MHz to Hz
@@ -27,8 +29,8 @@ public class Bot {
         }
     }
 
-    public Observable<String> getPositionsObservable() {
-        return positions.distinct();
+    public Observable<String> getPositionsFilteredObservable() {
+        return positionsFiltered;
     }
 
     public void setLocation(int x, int y, Instant time) {
