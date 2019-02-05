@@ -28,7 +28,7 @@ public class Bot {
     }
 
     public Observable<String> getPositionsObservable() {
-        return positions;
+        return positions.distinct();
     }
 
     public void setLocation(int x, int y, Instant time) {
