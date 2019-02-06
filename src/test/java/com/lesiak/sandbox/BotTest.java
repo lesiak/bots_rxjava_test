@@ -33,7 +33,7 @@ public class BotTest {
 
     @Test
     public void testSetLocation() {
-        Bot bot = new Bot(null);
+        Bot bot = new Bot();
         TestObserver<Timed<String>> subscriber = bot.getPositionsFilteredObservable().test();
         bot.setLocation(1, 2);
         testScheduler.advanceTimeBy(10, MILLISECONDS);
