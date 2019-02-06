@@ -3,6 +3,7 @@ package com.lesiak.sandbox;
 import io.reactivex.Observable;
 import io.reactivex.Scheduler;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.schedulers.Timed;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 
@@ -22,7 +23,7 @@ public class Bot {
     private int x, y;
 
     private Subject<String> positions = PublishSubject.create();
-    private Observable<String> positionsFiltered = positions.throttleLatest(1, TimeUnit.SECONDS);
+    private Observable<Timed<String>> positionsFiltered = positions.timestamp().throttleLatest(1, TimeUnit.SECONDS);
 
     public Bot(Double frq) {
         if (frq != null) { // convert MHz to Hz
@@ -32,7 +33,7 @@ public class Bot {
     }
 
 
-    public Observable<String> getPositionsFilteredObservable() {
+    public Observable<Timed<String>> getPositionsFilteredObservable() {
         return positionsFiltered;
     }
 
