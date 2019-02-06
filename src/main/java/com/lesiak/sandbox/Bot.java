@@ -22,19 +22,15 @@ public class Bot {
     private int x, y;
 
     private Subject<String> positions = PublishSubject.create();
-    private Observable<String> positionsFiltered;
+    private Observable<String> positionsFiltered = positions.throttleLatest(1, TimeUnit.SECONDS);
 
     public Bot(Double frq) {
-        this(frq, Schedulers.computation());
-    }
-
-    Bot(Double frq, Scheduler scheduler) {
         if (frq != null) { // convert MHz to Hz
             radio = Optional.of(
                     new Radio((long) (frq.doubleValue() * 1000000)));
         }
-        positionsFiltered = positions.throttleLatest(1, TimeUnit.SECONDS, scheduler);
     }
+
 
     public Observable<String> getPositionsFilteredObservable() {
         return positionsFiltered;

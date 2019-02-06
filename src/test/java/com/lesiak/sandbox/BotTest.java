@@ -1,7 +1,9 @@
 package com.lesiak.sandbox;
 
 import io.reactivex.observers.TestObserver;
+import io.reactivex.plugins.RxJavaPlugins;
 import io.reactivex.schedulers.TestScheduler;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,11 +18,19 @@ public class BotTest {
     @Before
     public void before() {
         testScheduler = new TestScheduler();
+        // set calls to Schedulers.computation() to use our test scheduler
+        RxJavaPlugins.setComputationSchedulerHandler(ignore -> testScheduler);
+    }
+
+    @After
+    public void after() {
+        // reset it
+        RxJavaPlugins.setComputationSchedulerHandler(null);
     }
 
     @Test
     public void testSetLocation() {
-        Bot bot = new Bot(null, testScheduler);
+        Bot bot = new Bot(null);
         TestObserver<String> subscriber = bot.getPositionsFilteredObservable().test();
         bot.setLocation(1, 2);
         bot.setLocation(3, 4);
