@@ -1,28 +1,35 @@
 package com.lesiak.sandbox;
 
 import io.reactivex.observers.TestObserver;
+import io.reactivex.schedulers.TestScheduler;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.concurrent.TimeUnit;
 
 
 public class BotTest {
 
-    @Test
-    public void testSetLocation() throws InterruptedException {
-        Bot bot = new Bot(null);
-        TestObserver<String> subscriber = bot.getPositionsFilteredObservable().test();
-        Instant now = Instant.now();
-        bot.setLocation(1, 2, now);
+    private TestScheduler testScheduler;
 
-        bot.setLocation(3, 4, now);
+    @Before
+    public void before() {
+        testScheduler = new TestScheduler();
+    }
+
+    @Test
+    public void testSetLocation() {
+        Bot bot = new Bot(null, testScheduler);
+        TestObserver<String> subscriber = bot.getPositionsFilteredObservable().test();
+        bot.setLocation(1, 2);
+        bot.setLocation(3, 4);
         subscriber.assertValues("1-2");
-        Thread.sleep(1200);
+        testScheduler.advanceTimeBy(1, TimeUnit.SECONDS);
         subscriber.assertValues("1-2", "3-4");
-        Thread.sleep(1200);
+        testScheduler.advanceTimeBy(1, TimeUnit.SECONDS);
         subscriber.assertValues("1-2", "3-4");
-        Instant time = now.plusMillis(Bot.REPORT_STATUS_INTERVAL + 1);
-        bot.setLocation(5, 6, time);
+        bot.setLocation(5, 6);
         subscriber.assertValues("1-2", "3-4", "5-6");
 
     }

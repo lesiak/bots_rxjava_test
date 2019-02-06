@@ -1,6 +1,8 @@
 package com.lesiak.sandbox;
 
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
 
@@ -20,23 +22,27 @@ public class Bot {
     private int x, y;
 
     private Subject<String> positions = PublishSubject.create();
-    private Observable<String> positionsFiltered = positions.throttleLatest(1, TimeUnit.SECONDS);
+    private Observable<String> positionsFiltered;
 
     public Bot(Double frq) {
+        this(frq, Schedulers.computation());
+    }
+
+    Bot(Double frq, Scheduler scheduler) {
         if (frq != null) { // convert MHz to Hz
             radio = Optional.of(
                     new Radio((long) (frq.doubleValue() * 1000000)));
         }
+        positionsFiltered = positions.throttleLatest(1, TimeUnit.SECONDS, scheduler);
     }
 
     public Observable<String> getPositionsFilteredObservable() {
         return positionsFiltered;
     }
 
-    public void setLocation(int x, int y, Instant time) {
+    public void setLocation(int x, int y) {
         this.x = x;
         this.y = y;
-        //reportStatus(time);
         positions.onNext(x + "-" + y);
     }
 
